@@ -32,7 +32,7 @@ class PaginaCadastro():
             self.input_data_nascimento.fill(data_nascimento)
         if pais:
             self.select_pais.select_option(pais)
-        if pais:
+        if cep:
             self.input_cep.fill(cep)
         if numero_casa:
             self.input_numero_casa.fill(numero_casa)
