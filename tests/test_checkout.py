@@ -1,36 +1,8 @@
-import time
-from pages.pagina_cadastro import PaginaCadastro
-from pages.pagina_login import PaginaLogin
 from pages.pagina_checkout import PaginaCheckout
 from playwright.sync_api import expect
 
-SENHA_PADRAO = "1HgJx2d45#"
 
-
-def gerar_email_unico():
-    return f"higcheckout{int(time.time() * 1000)}@test.com"
-
-
-def cadastrar_e_logar(page, email, senha=SENHA_PADRAO):
-    paginacadastro = PaginaCadastro(page)
-    paginacadastro.acessar_cadastro()
-    paginacadastro.preencher_cadastro(primeiro_nome='Hig', ultimo_nome='Checkout', data_nascimento='2000-06-25',
-                                      pais='Brazil', cep='1234567', numero_casa='124', rua='Avenida Atlântica',
-                                      cidade='Rio de Janeiro',
-                                      estado='RJ', telefone='21567846845', email=email, senha=senha)
-    paginacadastro.botao_cadastrar.click()
-    page.wait_for_timeout(1000)
-
-    paginalogin = PaginaLogin(page)
-    paginalogin.acessar_login()
-    paginalogin.preencher_login(email=email, senha=senha)
-    paginalogin.botao_login.click()
-    page.wait_for_timeout(1000)
-
-
-def test_checkout_completo_com_sucesso(page):
-    cadastrar_e_logar(page, gerar_email_unico())
-
+def test_checkout_completo_com_sucesso(page, usuario_logado):
     paginacheckout = PaginaCheckout(page)
     paginacheckout.acessar_home()
     paginacheckout.card_produto.first.click()
@@ -56,9 +28,7 @@ def test_checkout_completo_com_sucesso(page):
     expect(page.get_by_text("Thanks for your order!", exact=False)).to_be_visible()
 
 
-def test_checkout_carrinho_vazio(page):
-    cadastrar_e_logar(page, gerar_email_unico())
-
+def test_checkout_carrinho_vazio(page, usuario_logado):
     paginacheckout = PaginaCheckout(page)
     paginacheckout.acessar_carrinho()
     expect(page.get_by_text("Quantity")).not_to_be_visible()
@@ -67,9 +37,7 @@ def test_checkout_carrinho_vazio(page):
     expect(page.get_by_text("Proceed to checkout")).not_to_be_visible()
 
 
-def test_checkout_endereco_incompleto(page):
-    cadastrar_e_logar(page, gerar_email_unico())
-
+def test_checkout_endereco_incompleto(page, usuario_logado):
     paginacheckout = PaginaCheckout(page)
     paginacheckout.acessar_home()
     paginacheckout.card_produto.first.click()
@@ -104,9 +72,7 @@ def test_checkout_sem_estar_logado(page):
     expect(paginacheckout.select_pais_endereco).not_to_be_visible()
 
 
-def test_checkout_resumo_reflete_itens_do_carrinho(page):
-    cadastrar_e_logar(page, gerar_email_unico())
-
+def test_checkout_resumo_reflete_itens_do_carrinho(page, usuario_logado):
     paginacheckout = PaginaCheckout(page)
     paginacheckout.acessar_home()
     paginacheckout.card_produto.first.click()

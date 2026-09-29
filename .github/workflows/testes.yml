@@ -30,6 +30,11 @@ jobs:
       - name: Instalar navegador do Playwright
         run: python -m playwright install --with-deps chromium
 
+      - name: Verificar acesso ao site
+        run: |
+          curl -s -o pagina.html -w "HTTP %{http_code}\n" https://practicesoftwaretesting.com/
+          grep -o "<title>[^<]*</title>" pagina.html || true
+
       - name: Executar testes
         run: pytest -v --junitxml=relatorio/junit.xml
 

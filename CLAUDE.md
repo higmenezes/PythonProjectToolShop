@@ -42,7 +42,7 @@ CI: `.github/workflows/testes.yml` runs the suite headless on Ubuntu on push/PR 
 
 Tests assert against literal English UI strings/messages from the live site (e.g. `"Product added to shopping cart."`, `"Invalid email or password"`) since there's no backend/mocking layer — these are real assertions against production text, so if the site copy changes, tests need to be updated to match.
 
-Known state coupling to watch for: `test_login.py` and `test_cadastro.py` assume a specific account (`higtest22@test.com`) already exists on the live site (created by `test_cadastro_com_dados_validos`) — these aren't currently isolated per the spec's stated goal of dynamic/independent test data, despite `casos-de-teste-toolshop.md` calling for exactly that. Don't assume login tests will pass standalone against a clean environment.
+Dynamic test data: `conftest.py` provides `novo_usuario` (registers a fresh account with a timestamp-unique email via `PaginaCadastro`, returns `{"email", "senha"}`, does not log in) and `usuario_logado` (depends on `novo_usuario`, additionally logs in via `PaginaLogin`). `test_login.py`, `test_cadastro.py` (duplicate-email case), and `test_checkout.py` all consume these instead of hardcoding `higtest22@test.com` — each test run creates its own account, per the spec's isolation goal. `gerar_email_unico(prefixo=...)` is also importable from `conftest` directly for one-off unique emails that shouldn't be registered (e.g. "email does not exist" negative tests).
 
 ## Conventions from the spec (`casos-de-teste-toolshop.md`)
 
