@@ -10,7 +10,6 @@ def test_catalogo_busca_produto_existente(page):
     quantidade = paginacatalogo.card_produto.count()
     assert quantidade > 0, f'Quantidade não é maior que zero'
     print(f'Quantidade: {quantidade}')
-    page.pause()
 
 def test_catalogo_busca_termo_inexistente(page):
     paginacatalogo = PaginaCatalogo(page)
@@ -47,7 +46,6 @@ def test_catalogo_filtro_preco(page):
 def teste_catalogo_consistencia(page):
     paginacatalogo = PaginaCatalogo(page)
     paginacatalogo.acessar_home()
-    page.pause()
     produto_nome = paginacatalogo.card_produto.locator('[data-test="product-name"]').first.text_content()
     produto_preco = paginacatalogo.card_preco.first.text_content()
     paginacatalogo.card_produto.first.click()
@@ -59,4 +57,3 @@ def teste_catalogo_consistencia(page):
 
 
 
-    page.pause()

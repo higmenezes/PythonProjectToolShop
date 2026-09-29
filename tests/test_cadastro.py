@@ -11,7 +11,6 @@ def test_cadastro_com_dados_validos(page):
                                       estado='RJ', telefone='21567846845', email='higtest22@test.com', senha='1HgJx2d45#')
     paginacadastro.botao_cadastrar.click()
     expect(page.get_by_role("heading", name="Login")).to_be_visible()
-    page.pause()
 
 def test_cadastro_com_email_ja_existente(page):
     paginacadastro = PaginaCadastro(page)
@@ -29,4 +28,3 @@ def test_cadastro_com_campos_obrigatorios_vazios(page):
     paginacadastro.preencher_cadastro(primeiro_nome='Higtest')
     paginacadastro.botao_cadastrar.click()
     expect(page.get_by_text("Phone is required.")).to_be_visible()
-    page.pause()

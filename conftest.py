@@ -1,10 +1,13 @@
+import os
+
 from playwright.sync_api import sync_playwright
 import pytest
 
 @pytest.fixture(scope="session")
 def navegador(request):
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=False)
+        headless = os.getenv("HEADLESS", "false").lower() == "true"
+        browser = playwright.chromium.launch(headless=headless)
         yield browser
         browser.close()
 
