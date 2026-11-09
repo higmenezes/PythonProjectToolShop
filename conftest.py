@@ -1,5 +1,8 @@
 import os
 import time
+import base64
+import pytest_html
+from slugify import slugify
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -86,32 +89,16 @@ def usuario_logado(page, novo_usuario):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """
-    Este hook é executado após cada fase do teste.
-    Usamos ele para verificar falhas e anexar capturas de tela ao relatório HTML.
-    """
-    outcome = yield
-    report = outcome.get_result()
+    resultado = yield
+    relatorio = resultado.get_result()
+    setattr(item, f"resultado_{relatorio.when}", relatorio)
 
-    # Lista de extras para o relatório HTML
-    extras = getattr(report, 'extra', [])
-
-    # Só captura na fase 'call' (execução do teste em si)
-    if report.when == 'call':
-        xfail = hasattr(report, 'wasxfail')
-
-        try:
-            # Captura quando falha (mas não é um XFAIL esperado)
-            if (report.skipped and xfail) or (report.failed and not xfail):
-                # Garante nome de arquivo seguro
-                screen_file = f"imagens/{slugify(item.nodeid)}.png"
-
-                # page deve estar disponível no teste (fixture do Playwright)
-                page = item.funcargs.get("page")
-                if page:
-                    page.screenshot(path=screen_file, full_page=True)
-                    extras.append(pytest_html.extras.png(screen_file))
-        except Exception as e:
-            print(f"Erro ao capturar imagem: {e}")
-
-    report.extra = extras
+    if relatorio.when == "call" and relatorio.failed and not hasattr(relatorio, "wasxfail"):
+        page = item.funcargs.get("page")
+        if page:
+            PASTA_SCREENSHOTS.mkdir(parents=True, exist_ok=True)
+            arquivo = PASTA_SCREENSHOTS / f"{slugify(item.nodeid)}.png"
+            png = page.screenshot(path=arquivo, full_page=True)
+            extras = getattr(relatorio, "extras", [])
+            extras.append(pytest_html.extras.png(base64.b64encode(png).decode()))
+            relatorio.extras = extras
